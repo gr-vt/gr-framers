@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<block>
+  <name>HDLC Framer (2-Channels)</name>
+  <key>framers_gr_hdlc_framer_2_channel_b</key>
+  <category>framers</category>
+  <import>import framers</import>
+  <import>import pmt</import>
+  <make>framers.gr_hdlc_framer_2_channel_b($dlci_0, $dlci_1)</make>
+
+  <param>
+    <name>Channel# User 0</name>
+    <key>dlci_0</key>
+    <value>0</value>
+    <type>int</type>
+  </param>
+  <param>
+    <name>Channel# User 1</name>
+    <key>dlci_1</key>
+    <value>1</value>
+    <type>int</type>
+  </param>
+
+  <sink>
+    <name>in0</name>
+    <type>message</type>
+    <optional>1</optional>
+  </sink>
+  <sink>
+    <name>in1</name>
+    <type>message</type>
+    <optional>1</optional>
+  </sink>
+
+  <source>
+    <name>out</name>
+    <type>byte</type>
+  </source>
+</block>

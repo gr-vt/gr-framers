@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<block>
+  <name>gr_hdlc_deframer_b</name>
+  <key>framers_gr_hdlc_deframer_b</key>
+  <category>framers</category>
+  <import>import framers</import>
+  <import>import pmt</import>
+  <make>framers.gr_hdlc_deframer_b($dlci)</make>
+  <param>
+    <name>dlci</name>
+    <key>dlci</key>
+    <value>0</value>
+    <type>int</type>
+  </param>
+  <sink>
+    <name>in</name>
+    <type>byte</type>
+  </sink>
+  <source>
+    <name>pdu</name>
+    <type>message</type>
+    <optional>1</optional>
+  </source>
+</block>
