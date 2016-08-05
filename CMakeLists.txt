@@ -155,5 +155,5 @@ add_subdirectory(docs)
 # Install cmake search helper for this library
 ########################################################################
 install(FILES cmake/Modules/framersConfig.cmake        
-    DESTINATION lib/cmake/framers
+    DESTINATION lib${LIB_SUFFIX}/cmake/framers
 )
