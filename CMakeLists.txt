@@ -84,7 +84,11 @@ set(GRC_BLOCKS_DIR      ${GR_PKG_DATA_DIR}/grc/blocks)
 # Find gnuradio build dependencies
 ########################################################################
 set(GR_REQUIRED_COMPONENTS RUNTIME BLOCKS PMT)
-find_package(Gnuradio "3.7")
+set(MIN_GR_VERSION "3.7.3")
+ find_package(Gnuradio REQUIRED)
+ if("${Gnuradio_VERSION}" VERSION_LESS MIN_GR_VERSION)
+     MESSAGE(FATAL_ERROR "GnuRadio version required: >=\"" ${MIN_GR_VERSION} "\" found: \"" ${Gnuradio_VERSION} "\"")
+ endif()
 find_package(CppUnit)
 # To run a more advanced search for GNU Radio and it's components and
 # versions, use the following. Add any components required to the list
