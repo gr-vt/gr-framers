@@ -29,6 +29,10 @@ public:
 
     // Debugging helper function for printing an HDLC packet
     static void print_packet(vector<unsigned char> packet);
+
+    // Public statistics
+    float d_ber;
+
 private:
     // CONSTANTS ------------------
     static const int           SUCCESS      = 1;
@@ -56,12 +60,14 @@ private:
     
     // Data statistics
     int            d_flag_cnt;
+    int            d_total_byte_cnt;
     int            d_good_frame_cnt;
     int            d_good_byte_cnt;
     int            d_good_dlci_cnt;
     int            d_unstuff_zero_cnt;
     // Error statistics
     int            d_crc_err_cnt;
+    int            d_err_byte_cnt;
     int            d_abort_cnt;
     int            d_seven_ones_cnt;
     int            d_non_align_cnt;

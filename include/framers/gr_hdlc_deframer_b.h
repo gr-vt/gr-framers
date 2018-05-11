@@ -48,6 +48,9 @@ namespace gr {
        * creating new instances.
        */
       static sptr make(int dlci);
+
+      // Getters for public statistics
+      virtual float get_ber() = 0;
     };
 
   } // namespace framers

@@ -109,6 +109,14 @@ namespace gr {
             total_packets++;
             
         }
+
+        /*
+         * Public Methods
+         */
+        float gr_hdlc_deframer_b_impl::get_ber()
+        {
+            return d_deframer.d_ber;
+        }
     } /* namespace framers */
 } /* namespace gr */
 

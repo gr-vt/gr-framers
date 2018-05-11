@@ -32,6 +32,8 @@ hdlc_deframer::hdlc_deframer(int dlci) :
     d_good_byte_cnt(0),
     d_good_dlci_cnt(0),
     d_crc_err_cnt(0),
+    d_err_byte_cnt(0),
+    d_total_byte_cnt(0),
     d_abort_cnt(0),
     d_seven_ones_cnt(0),
     d_non_align_cnt(0),
@@ -252,6 +254,11 @@ hdlc_deframer::hdlc_state_machine(const unsigned char next_bit)
                     {
                         // Size OK. Check crc
                         status = crc_valid(frame_size, frame_buf);
+
+                        // Regardless of the result, take bytes into
+                        // account in the total number of bytes
+                        d_total_byte_cnt += frame_size-2; // don't count CRC
+
                         if(status == FAIL)
                         {
                             // Log crc error
@@ -260,6 +267,7 @@ hdlc_deframer::hdlc_state_machine(const unsigned char next_bit)
                             DEBUG0("DEBUG: BAD CRC\n");
                             //fprintf(stderr, "    BAD CRC\n\n");
                             //fflush(stderr);
+                            d_err_byte_cnt += frame_size-2; // don't count CRC
                         }
                         else
                         {
@@ -290,6 +298,9 @@ hdlc_deframer::hdlc_state_machine(const unsigned char next_bit)
                                 }
                             }
                         }
+
+                        // Update BER
+                        d_ber = (float) d_err_byte_cnt / d_total_byte_cnt;
                     }
                 }
                 // Hunt for next flag or frame
