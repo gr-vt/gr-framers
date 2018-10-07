@@ -33,16 +33,6 @@ GR_PYTHON_INSTALL(
     __init__.py
     DESTINATION ${GR_PYTHON_DIR}/framers
 )
-set(GR_REQUIRED_COMPONENTS RUNTIME BLOCKS PMT)
-find_package(Gnuradio "3.7")
-
-find_package(Grcc)
-
-if(GRCC_FOUND)
-  message(STATUS "GRCC FOUND: ${GRCC_EXECUTABLE}")
-else(GRCC_FOUND)
-  message(STATUS "GRCC NOT FOUND")
-endif(GRCC_FOUND)
 
 ########################################################################
 # Handle the unit tests
@@ -50,15 +40,9 @@ endif(GRCC_FOUND)
 include(GrTest)
 
 set(GR_TEST_TARGET_DEPS gnuradio-framers)
-set(GR_TEST_PYTHON_DIRS ${CMAKE_BINARY_DIR}/swig $ENV{HOME}/.grc_gnuradio)
+set(GR_TEST_PYTHON_DIRS ${CMAKE_BINARY_DIR}/swig)
 message(STATUS "grcc -d ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/test_framers.grc")
 
-#add_custom_target(test_framers_heir ALL
-GR_ADD_TEST(setup_tests export PYTHONPATH="${CMAKE_INSTALL_PREFIX}/python/:${CMAKE_INSTALL_PREFIX}/lib/python2.6/site-packages/:${CMAKE_INSTALL_PREFIX}/lib64/python2.6/site-packages/:${CMAKE_INSTALL_PREFIX}/lib/python2.6/dist-packages/:${CMAKE_INSTALL_PREFIX}/lib64/python2.6/dist-packages/:${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/:${CMAKE_INSTALL_PREFIX}/lib64/python2.7/site-packages/:${CMAKE_INSTALL_PREFIX}/lib/python2.7/dist-packages/:${CMAKE_INSTALL_PREFIX}/lib64/python2.7/dist-packages/:${CMAKE_INSTALL_PREFIX}/python/:${CMAKE_INSTALL_PREFIX}/lib/python2.6/site-packages/:${CMAKE_INSTALL_PREFIX}/lib64/python2.6/site-packages/:${CMAKE_INSTALL_PREFIX}/lib/python2.6/dist-packages/:${CMAKE_INSTALL_PREFIX}/lib64/python2.6/dist-packages/:${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/:${CMAKE_INSTALL_PREFIX}/lib64/python2.7/site-packages/:${CMAKE_INSTALL_PREFIX}/lib/python2.7/dist-packages/:${CMAKE_INSTALL_PREFIX}/lib64/python2.7/dist-packages/:" && export LD_LIBRARY_PATH="${CMAKE_INSTALL_PREFIX}/lib/:${CMAKE_INSTALL_PREFIX}/lib64/:" && ${GRCC_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_framers_001.grc && ${GRCC_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_framers_002.grc && ${GRCC_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_messages_001.grc
-) 
-#add_custom_target(test_messages_heir ALL
-#  COMMAND ${GRCC_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_messages.grc
-#) 
 GR_ADD_TEST(qa_gr_messages ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_gr_messages.py)
 GR_ADD_TEST(qa_gr_hdlc_framer_b ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_gr_hdlc_framer_b.py)
 GR_ADD_TEST(qa_gr_hdlc_deframer_b ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/qa_gr_hdlc_deframer_b.py)
