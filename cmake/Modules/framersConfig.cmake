@@ -6,7 +6,7 @@ FIND_PATH(
     NAMES framers/api.h
     HINTS $ENV{FRAMERS_DIR}/include
         ${PC_FRAMERS_INCLUDEDIR}
-    PATHS ${CMAKE_INSTALL_PREEFIX}/include
+    PATHS ${CMAKE_INSTALL_PREFIX}/include
           /usr/local/include
           /usr/include
 )

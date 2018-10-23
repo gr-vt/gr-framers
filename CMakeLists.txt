@@ -1,4 +1,4 @@
-# Copyright 2011,2012 Free Software Foundation, Inc.
+# Copyright 2011,2012,2014,2016 Free Software Foundation, Inc.
 #
 # This file is part of GNU Radio
 #
@@ -17,13 +17,18 @@
 # the Free Software Foundation, Inc., 51 Franklin Street,
 # Boston, MA 02110-1301, USA.
 
-
 ########################################################################
 # Project setup
 ########################################################################
 cmake_minimum_required(VERSION 2.6)
 project(gr-framers CXX C)
 enable_testing()
+
+#install to PyBOMBS target prefix if defined
+if(DEFINED ENV{PYBOMBS_PREFIX})
+    set(CMAKE_INSTALL_PREFIX $ENV{PYBOMBS_PREFIX})
+    message(STATUS "PyBOMBS installed GNU Radio. Setting CMAKE_INSTALL_PREFIX to $ENV{PYBOMBS_PREFIX}")
+endif()
 
 #select the release build type by default to get optimization flags
 if(NOT CMAKE_BUILD_TYPE)
@@ -32,7 +37,31 @@ if(NOT CMAKE_BUILD_TYPE)
 endif(NOT CMAKE_BUILD_TYPE)
 set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "")
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules)
+#make sure our local CMake Modules path comes first
+list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
+
+# Set the version information here
+set(VERSION_INFO_MAJOR_VERSION 1)
+set(VERSION_INFO_API_COMPAT    0)
+set(VERSION_INFO_MINOR_VERSION 0)
+set(VERSION_INFO_MAINT_VERSION git)
+
+# Set cmake policies.
+# This will suppress developer warnings during the cmake process that can occur
+# if a newer cmake version than the minimum is used.
+
+if(POLICY CMP0026)
+    cmake_policy(SET CMP0026 OLD)
+endif()
+if(POLICY CMP0043)
+    cmake_policy(SET CMP0043 OLD)
+endif()
+if(POLICY CMP0045)
+    cmake_policy(SET CMP0045 OLD)
+endif()
+if(POLICY CMP0046)
+    cmake_policy(SET CMP0046 OLD)
+endif()
 
 ########################################################################
 # Compiler specific setup
@@ -81,29 +110,52 @@ set(GR_PKG_LIBEXEC_DIR  ${GR_LIBEXEC_DIR}/${CMAKE_PROJECT_NAME})
 set(GRC_BLOCKS_DIR      ${GR_PKG_DATA_DIR}/grc/blocks)
 
 ########################################################################
+# On Apple only, set install name and use rpath correctly, if not already set
+########################################################################
+if(APPLE)
+    if(NOT CMAKE_INSTALL_NAME_DIR)
+        set(CMAKE_INSTALL_NAME_DIR
+            ${CMAKE_INSTALL_PREFIX}/${GR_LIBRARY_DIR} CACHE
+            PATH "Library Install Name Destination Directory" FORCE)
+    endif(NOT CMAKE_INSTALL_NAME_DIR)
+    if(NOT CMAKE_INSTALL_RPATH)
+        set(CMAKE_INSTALL_RPATH
+            ${CMAKE_INSTALL_PREFIX}/${GR_LIBRARY_DIR} CACHE
+            PATH "Library Install RPath" FORCE)
+    endif(NOT CMAKE_INSTALL_RPATH)
+    if(NOT CMAKE_BUILD_WITH_INSTALL_RPATH)
+        set(CMAKE_BUILD_WITH_INSTALL_RPATH ON CACHE
+            BOOL "Do Build Using Library Install RPath" FORCE)
+    endif(NOT CMAKE_BUILD_WITH_INSTALL_RPATH)
+endif(APPLE)
+
+########################################################################
 # Find gnuradio build dependencies
 ########################################################################
-set(GR_REQUIRED_COMPONENTS RUNTIME BLOCKS PMT)
-set(MIN_GR_VERSION "3.7.3")
- find_package(Gnuradio REQUIRED)
- if("${Gnuradio_VERSION}" VERSION_LESS MIN_GR_VERSION)
-     MESSAGE(FATAL_ERROR "GnuRadio version required: >=\"" ${MIN_GR_VERSION} "\" found: \"" ${Gnuradio_VERSION} "\"")
- endif()
 find_package(CppUnit)
-# To run a more advanced search for GNU Radio and it's components and
-# versions, use the following. Add any components required to the list
-# of GR_REQUIRED_COMPONENTS (in all caps) and change "version" to the
-# minimum API compatible version required.
-#
-# set(GR_REQUIRED_COMPONENTS RUNTIME BLOCKS FILTER ...)
-# find_package(Gnuradio "version")
+find_package(Doxygen)
 
-if(NOT GNURADIO_RUNTIME_FOUND)
-    message(FATAL_ERROR "GnuRadio Runtime required to compile framers")
-endif()
+# Search for GNU Radio and its components and versions. Add any
+# components required to the list of GR_REQUIRED_COMPONENTS (in all
+# caps such as FILTER or FFT) and change the version to the minimum
+# API compatible version required.
+set(GR_REQUIRED_COMPONENTS RUNTIME BLOCKS PMT)
+find_package(Gnuradio "3.7.3" REQUIRED)
+list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
+include(GrVersion)
+
 if(NOT CPPUNIT_FOUND)
     message(FATAL_ERROR "CppUnit required to compile framers")
 endif()
+
+########################################################################
+# Setup doxygen option
+########################################################################
+if(DOXYGEN_FOUND)
+	option(ENABLE_DOXYGEN "Build docs using Doxygen" ON)
+else(DOXYGEN_FOUND)
+	option(ENABLE_DOXYGEN "Build docs using Doxygen" OFF)
+endif(DOXYGEN_FOUND)
 
 ########################################################################
 # Setup the include and linker paths
@@ -115,7 +167,7 @@ include_directories(
     ${CMAKE_BINARY_DIR}/include
     ${Boost_INCLUDE_DIRS}
     ${CPPUNIT_INCLUDE_DIRS}
-    ${GNURADIO_RUNTIME_INCLUDE_DIRS}
+    ${GNURADIO_ALL_INCLUDE_DIRS}
 )
 
 link_directories(
@@ -123,10 +175,6 @@ link_directories(
     ${CPPUNIT_LIBRARY_DIRS}
     ${GNURADIO_RUNTIME_LIBRARY_DIRS}
 )
-message(STATUS "GNURADIO_RUNTIME_LIBRARY_DIRS: ${GNURADIO_RUNTIME_LIBRARY_DIRS}")
-message(STATUS "GNURADIO_ALL_LIBRARY_DIRS: ${GNURADIO_ALL_LIBRARY_DIRS}")
-
-message(STATUS "Boost required to compile framers")
 
 # Set component parameters
 set(GR_FRAMERS_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include CACHE INTERNAL "" FORCE)
@@ -158,6 +206,10 @@ add_subdirectory(docs)
 ########################################################################
 # Install cmake search helper for this library
 ########################################################################
-install(FILES cmake/Modules/framersConfig.cmake        
-    DESTINATION lib${LIB_SUFFIX}/cmake/framers
+if(NOT CMAKE_MODULES_DIR)
+  set(CMAKE_MODULES_DIR lib${LIB_SUFFIX}/cmake)
+endif(NOT CMAKE_MODULES_DIR)
+
+install(FILES cmake/Modules/framersConfig.cmake
+    DESTINATION ${CMAKE_MODULES_DIR}/framers
 )
