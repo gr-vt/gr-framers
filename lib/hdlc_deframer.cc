@@ -39,7 +39,10 @@ hdlc_deframer::hdlc_deframer(int dlci) :
     d_non_align_cnt(0),
     d_giant_cnt(0),
     d_runt_cnt(0),
-    d_unstuff_zero_cnt(0)
+    d_unstuff_zero_cnt(0),
+    d_ber(0.0),
+    d_fer(0.0),
+    d_n_frames(0)
 {
 
 }
@@ -299,8 +302,10 @@ hdlc_deframer::hdlc_state_machine(const unsigned char next_bit)
                             }
                         }
 
-                        // Update BER
-                        d_ber = (float) d_err_byte_cnt / d_total_byte_cnt;
+                        // Update statistics: BER, BER and number of frames
+                        d_n_frames = d_crc_err_cnt + d_good_frame_cnt;
+                        d_fer      = (float) d_crc_err_cnt / d_n_frames;
+                        d_ber      = (float) d_err_byte_cnt / d_total_byte_cnt;
                     }
                 }
                 // Hunt for next flag or frame

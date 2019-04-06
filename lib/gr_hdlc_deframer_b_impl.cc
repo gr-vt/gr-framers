@@ -113,9 +113,23 @@ namespace gr {
         /*
          * Public Methods
          */
+
+        /* Bit error rate */
         float gr_hdlc_deframer_b_impl::get_ber()
         {
             return d_deframer.d_ber;
+        }
+
+        /* Frame error rate */
+        float gr_hdlc_deframer_b_impl::get_fer()
+        {
+            return d_deframer.d_fer;
+        }
+
+        /* Total number of frames so far */
+        int gr_hdlc_deframer_b_impl::get_n_frames()
+        {
+            return d_deframer.d_n_frames;
         }
     } /* namespace framers */
 } /* namespace gr */

@@ -51,6 +51,8 @@ namespace gr {
 
       // Getters for public statistics
       virtual float get_ber() = 0;
+      virtual float get_fer() = 0;
+      virtual int get_n_frames() = 0;
     };
 
   } // namespace framers
