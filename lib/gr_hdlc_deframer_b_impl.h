@@ -38,6 +38,8 @@ namespace gr {
 
             // Getters for public statistics
             float get_ber();
+            float get_fer();
+            int get_n_frames();
         };
         
     } // namespace framers

@@ -32,6 +32,8 @@ public:
 
     // Public statistics
     float d_ber;
+    float d_fer;
+    int d_n_frames;
 
 private:
     // CONSTANTS ------------------
